@@ -61,6 +61,9 @@ class Annotation extends Component {
       comment: "I'm a new comment!",
       isEditing: false
     }
+    if (document.getElementById("vidFrame") !== null) {
+      this.state.timeStamp = document.getElementById("vidFrame").getCurrentTime()
+    }
 
     this.editComment = this.editComment.bind(this)
   }
@@ -99,7 +102,6 @@ class Annotation extends Component {
           <button id="editBtn" onClick={() => this.toggleEdit()}>Edit</button>
         </li>
       )
-
     }
   }
 }
@@ -128,15 +130,15 @@ class YoutubeLoader extends Component {
     if (inputLink !== "") {
       inputLink = this.getId(inputLink)
       if (inputLink !== 'error') {
-        this.setState({vidLink: 'https://www.youtube.com/embed/' + inputLink});
-        console.log(this.vidLink)
-        this.injectNewVideo();
+        this.setState({vidLink: 'https://www.youtube.com/embed/' + inputLink}, () => {
+          this.injectNewVideo()
+        })
       }
     }
   }
 
   injectNewVideo() {
-    document.getElementById('vidCode').innerHTML = '<iframe width="560" height="315" src=' + this.vidLink + ' frameBorder="0" allowFullScreen></iframe>';
+    document.getElementById('vidCode').innerHTML = '<iframe width="560" height="315" src=' + this.state.vidLink + ' frameBorder="0" allowFullScreen></iframe>';
   }
 
   render() {
