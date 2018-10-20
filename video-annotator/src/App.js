@@ -7,12 +7,33 @@ class App extends Component {
     return (
       <div className="App">
         <iframe title="currVideo" width="560" height="315" src="https://www.youtube.com/embed/LTXTeAt2mpg" frameBorder="0" allow="autoplay; encrypted-media" allowFullScreen></iframe>
-        <YoutubeLoader />
-        <AnnotationList />
+        <VideoAnnotator />
       </div>
     );
   }
 
+}
+
+class VideoAnnotator extends Component {
+  constructor(props) {
+    super(props)
+    this.state = {
+      vidId: "",
+    }
+  }
+
+  changeVidId(newVidId) {
+    this.setState({vidId: newVidId})
+  }
+
+  render() {
+    return (
+      <div className="VideoAnnotator">
+        <YoutubeLoader changeVidId={this.changeVidId.bind(this)}/>
+        <AnnotationList vidId={this.state.vidId}/>
+      </div>
+    )
+  }
 }
 
 class AnnotationList extends Component {
@@ -23,6 +44,10 @@ class AnnotationList extends Component {
     }
   }
 
+  componentWillReceiveProps({someProp}) {
+    this.setState({...this.state, someProp})
+  }
+
   createNewAnnotation(){
     this.setState({
       annotations: this.state.annotations.concat(this.renderAnnotation())
@@ -31,7 +56,7 @@ class AnnotationList extends Component {
 
   renderAnnotation() {
     return (
-      <Annotation />
+      <Annotation vidId={this.props.vidId}/>
     )
   }
 
@@ -56,13 +81,13 @@ class Annotation extends Component {
     super(props);
     this.state = {
       key: Math.random(),
-      vidId: "VIDID",
+      vidId: this.props.vidId,
       timeStamp: 0,
       comment: "I'm a new comment!",
       isEditing: false
     }
     if (document.getElementById("vidFrame") !== null) {
-      this.state.timeStamp = document.getElementById("vidFrame").getCurrentTime()
+      this.setState({timeStamp: document.getElementById("vidFrame").getCurrentTime()})
     }
 
     this.editComment = this.editComment.bind(this)
@@ -131,6 +156,7 @@ class YoutubeLoader extends Component {
       inputLink = this.getId(inputLink)
       if (inputLink !== 'error') {
         this.setState({vidLink: 'https://www.youtube.com/embed/' + inputLink}, () => {
+          this.props.changeVidId(inputLink)
           this.injectNewVideo()
         })
       }
